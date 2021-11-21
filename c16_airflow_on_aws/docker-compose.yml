@@ -14,42 +14,40 @@ x-environment: &airflow_environment
   - AIRFLOW_CONN_MOVIELENS=http://airflow:airflow@movielens
   - MOVIELENS_USER=airflow
   - MOVIELENS_PASSWORD=airflow
-  - MOVIELENS_HOST=http://movielens:5000
+  # AWS setttings.
+  - AWS_DEFAULT_REGION=eu-west-1
+  - AIRFLOW_CONN_MY_AWS_CONN=s3://?aws_access_key_id=${AWS_ACCESS_KEY}&aws_secret_access_key=${AWS_ACCESS_SECRET}
+  - RATINGS_BUCKET=${RATINGS_BUCKET}
+  - RANKINGS_BUCKET=${RANKINGS_BUCKET}
+  - CRAWLER_NAME=${CRAWLER_NAME}
 x-airflow-image: &airflow_image apache/airflow:2.0.0-python3.8
 # ====================================== /AIRFLOW ENVIRONMENT VARIABLES ======================================
 services:
   postgres:
     image: postgres:12-alpine
-    container_name: chapter10_docker_postgres_1
     environment:
       - POSTGRES_USER=airflow
       - POSTGRES_PASSWORD=airflow
       - POSTGRES_DB=airflow
     ports:
       - "5432:5432"
-    networks:
-      - airflow
   init:
     build:
-      context: images/airflow-docker
+      context: docker/airflow-aws
       args:
         AIRFLOW_BASE_IMAGE: *airflow_image
-    image: manning-airflow/airflow-docker
-    container_name: chapter10_docker_init_1
+    image: manning-airflow/airflow-aws
     depends_on:
       - postgres
-    networks:
-      - airflow
     environment: *airflow_environment
     entrypoint: /bin/bash
     command: -c 'airflow db upgrade && sleep 5 && airflow users create --username admin --password admin --firstname Anonymous --lastname Admin --role Admin --email admin@example.org'
   webserver:
     build:
-      context: images/airflow-docker
+      context: docker/airflow-aws
       args:
         AIRFLOW_BASE_IMAGE: *airflow_image
-    image: manning-airflow/airflow-docker
-    container_name: chapter10_docker_webserver_1
+    image: manning-airflow/airflow-aws
     restart: always
     depends_on:
       - postgres
@@ -57,57 +55,32 @@ services:
       - "8080:8080"
     volumes:
       - logs:/opt/airflow/logs
-    networks:
-      - airflow
     environment: *airflow_environment
     command: webserver
   scheduler:
     build:
-      context: images/airflow-docker
+      context: docker/airflow-aws
       args:
         AIRFLOW_BASE_IMAGE: *airflow_image
-    image: manning-airflow/airflow-docker
-    container_name: chapter10_docker_scheduler_1
+    image: manning-airflow/airflow-aws
     restart: always
     depends_on:
       - postgres
     volumes:
       - ./dags:/opt/airflow/dags
+      - data:/data
       - logs:/opt/airflow/logs
-      - /var/run/docker.sock:/var/run/docker.sock
-    networks:
-      - airflow
     environment: *airflow_environment
     command: scheduler
   movielens:
-    build: ../../chapter08/docker/movielens-api
+    build: ../c08_custom_components/docker/movielens-api
     image: manning-airflow/movielens-api
-    container_name: chapter10_docker_movielens_1
-    networks:
-      - airflow
     ports:
       - "5000:5000"
     environment:
       API_USER: airflow
       API_PASSWORD: airflow
 
-  # These aren't actual services, but we include them to make sure that the
-  # corresponding images are built by when pulling up docker-compose.
-  movielens-fetch:
-    build: images/movielens-fetch
-    image: manning-airflow/movielens-fetch
-    container_name: chapter10_docker_movielens-fetch_1
-    restart: "no"
-  movielens-rank:
-    build: images/movielens-rank
-    image: manning-airflow/movielens-rank
-    container_name: chapter10_docker_movielens-rank_1
-    restart: "no"
-
-networks:
-  airflow:
-    name: airflow
-
 volumes:
+  data:
   logs:
-    name: chapter10_docker_logs
