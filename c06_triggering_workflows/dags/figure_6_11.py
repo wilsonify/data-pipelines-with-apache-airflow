@@ -1,3 +1,36 @@
+"""
+Polling custom conditions
+Some data sets are large and consist of multiple files
+(e.g., data-01.csv, data-02.csv,data-03.csv, etc.).
+
+Airflow’s FileSensor supports wildcards to match.
+for example, data-*.csv, which will match any file matching the pattern.
+So, if, for example, the first file data-01.csv is delivered while others are still being uploaded
+to the shared storage by the supermarket, the FileSensor would return true
+ and the workflow would continue to the copy_to_raw task, which is undesirable.
+
+Therefore, we agreed with the supermarkets to write a file named _SUCCESS as the last part of uploading,
+to indicate the full daily data set was uploaded.
+
+The data team decided they want to check for both
+ the existence of one or more files named data-*.csv
+ and one file named _SUCCESS.
+
+Under the hood the FileSensor uses globbing (https://en.wikipedia.org/wiki/Glob)
+to match patterns against file or directory names.
+While globbing (similar to regex but more limited)
+would be able to match multiple patterns with a complex pattern,
+a more readable approach is to implement the two checks with the PythonSensor .
+
+The PythonSensor is similar to the PythonOperator in the sense that you supply a Python callable
+(function, method, etc.) to execute.
+However, the PythonSensor callable is limited to returning a Boolean value:
+  true to indicate the condition is met successfully,
+  false to indicate it is not.
+
+Let’s check out a PythonSensor callable checking
+these two conditions.
+"""
 from pathlib import Path
 
 import airflow.utils.dates
@@ -26,7 +59,7 @@ for supermarket_id in range(1, 5):
         task_id=f"wait_for_supermarket_{supermarket_id}",
         python_callable=_wait_for_supermarket,
         op_kwargs={"supermarket_id_": f"supermarket{supermarket_id}"},
-        timeout=600,
+        timeout=6000,
         dag=dag,
     )
     copy = DummyOperator(task_id=f"copy_to_raw_supermarket_{supermarket_id}", dag=dag)

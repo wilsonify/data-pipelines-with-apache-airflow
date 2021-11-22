@@ -27,7 +27,7 @@ for supermarket_id in range(1, 5):
         task_id=f"wait_for_supermarket_{supermarket_id}",
         python_callable=_wait_for_supermarket,
         op_kwargs={"supermarket_id_": f"supermarket{supermarket_id}"},
-        timeout=600,
+        timeout=6000,
         mode="reschedule",
         dag=dag,
     )
