@@ -12,6 +12,7 @@ from airflow.providers.amazon.aws.hooks.s3 import S3Hook
 from minio import Minio
 from nyctransport.operators.pandas_operator import PandasOperator
 from nyctransport.operators.s3_to_postgres import MinioPandasToPostgres
+from pandas.errors import EmptyDataError, ParserError
 from requests.auth import HTTPBasicAuth
 
 dag = DAG(
@@ -74,7 +75,7 @@ download_taxi_data = PythonOperator(
 
 
 def get_minio_object(
-    pandas_read_callable, bucket, paths, pandas_read_callable_kwargs=None
+        pandas_read_callable, bucket, paths, pandas_read_callable_kwargs=None
 ):
     s3_conn = BaseHook.get_connection(conn_id="s3")
     minio_client = Minio(
@@ -96,7 +97,11 @@ def get_minio_object(
     dfs = []
     for path in paths:
         minio_object = minio_client.get_object(bucket_name=bucket, object_name=path)
-        df = pandas_read_callable(minio_object, **pandas_read_callable_kwargs)
+        try:
+            df = pandas_read_callable(minio_object, **pandas_read_callable_kwargs)
+        except (EmptyDataError, ParserError):
+            df = pd.DataFrame()
+
         dfs.append(df)
     return pd.concat(dfs)
 
@@ -137,7 +142,7 @@ def transform_citi_bike_data(df):
 
 
 def write_minio_object(
-    df, pandas_write_callable, bucket, path, pandas_write_callable_kwargs=None
+        df, pandas_write_callable, bucket, path, pandas_write_callable_kwargs=None
 ):
     s3_conn = BaseHook.get_connection(conn_id="s3")
     minio_client = Minio(
