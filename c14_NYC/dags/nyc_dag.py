@@ -17,7 +17,7 @@ from requests.auth import HTTPBasicAuth
 
 dag = DAG(
     dag_id="nyc_dag",
-    schedule_interval="0 * * * *",
+    schedule_interval="*/1 * * * *",
     start_date=airflow.utils.dates.days_ago(1),
     catchup=False,
 )
