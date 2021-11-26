@@ -68,8 +68,8 @@ services:
       - ./setup.py:/opt/airflow/nyctransport/setup.py
       - ./logs:/opt/airflow/logs
     environment: *airflow_environment
-    entrypoint: ["/bin/sh"]
-    command: ["-c", "pip install --user -e /opt/airflow/nyctransport && airflow scheduler"]
+    entrypoint: [ "/bin/sh" ]
+    command: [ "-c", "pip install --user -e /opt/airflow/nyctransport && airflow scheduler" ]
 
   taxi_fileserver:
     build:
@@ -145,7 +145,7 @@ services:
       - POSTGRES_PASSWORD=tr4N5p0RT4TI0N
       - POSTGRES_DB=nyctransportation
     volumes:
-    - ./services/result_db/create_tables.sql:/docker-entrypoint-initdb.d/create_tables.sql
+      - ./services/result_db/create_tables.sql:/docker-entrypoint-initdb.d/create_tables.sql
     ports:
       - "5435:5432"
 

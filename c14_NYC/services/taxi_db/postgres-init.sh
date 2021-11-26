@@ -45,7 +45,11 @@ https://s3.amazonaws.com/nyc-tlc/trip+data/yellow_tripdata_2019-12.csv
 
 for url in ${urls}
 do
-  time wget "${url}" -O /tmp/yellowtripdata.csv
+  filename="${url##*/}"
+  if [ ! -f data/raw/$filename ]; then
+    echo "File not found, download it"
+    time wget "${url}" -P data/raw
+  fi
   # Importing all records results in a 6.35GB Docker image
   # Therefore we select every 10th line to decrease size and end up with a 1.21GB Docker image
   time awk -F',' 'NR == 1 || NR % 10 == 0 {print $2","$3","$5","$8","$9}' /tmp/yellowtripdata.csv > /tmp/yellowtripdata_small.csv

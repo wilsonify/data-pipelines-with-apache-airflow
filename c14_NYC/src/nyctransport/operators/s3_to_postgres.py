@@ -16,16 +16,16 @@ class MinioPandasToPostgres(BaseOperator):
 
     @apply_defaults
     def __init__(
-        self,
-        minio_conn_id,
-        minio_bucket,
-        minio_key,
-        pandas_read_callable,
-        postgres_conn_id,
-        postgres_table,
-        read_callable_kwargs: Dict = None,
-        pre_read_transform: Callable = None,
-        **kwargs,
+            self,
+            minio_conn_id,
+            minio_bucket,
+            minio_key,
+            pandas_read_callable,
+            postgres_conn_id,
+            postgres_table,
+            read_callable_kwargs: Dict = None,
+            pre_read_transform: Callable = None,
+            **kwargs,
     ):
         super().__init__(**kwargs)
         self._minio_conn_id = minio_conn_id

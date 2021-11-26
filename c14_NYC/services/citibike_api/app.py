@@ -46,8 +46,8 @@ def get_recent_rides(period: str, amount: int):
     )
     cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
     year_offset = date.today().year - int(os.environ["DATA_YEAR"])
-    cursor.execute(
-        f"""SELECT
+    query_string = f"""
+SELECT
 tripduration,
 starttime + INTERVAL '{year_offset} YEARS' AS starttime,
 stoptime + INTERVAL '{year_offset} YEARS' AS stoptime,
@@ -61,8 +61,10 @@ end_station_latitude,
 end_station_longitude
 from tripdata
 WHERE stoptime + interval '{year_offset} YEARS' <= NOW()
-AND stoptime + interval '{year_offset} YEARS' >= NOW() - interval '{amount} {period}s';"""
-    )
+AND stoptime + interval '{year_offset} YEARS' >= NOW() - interval '{amount} {period}s';
+"""
+
+    cursor.execute(query_string)
     data = cursor.fetchall()
     return jsonify(data)
 

@@ -42,9 +42,15 @@ https://s3.amazonaws.com/tripdata/201912-citibike-tripdata.csv.zip
 
 for url in ${urls}
 do
-  wget "${url}" -O /tmp/citibike-tripdata.csv.zip # Download data
-  unzip /tmp/citibike-tripdata.csv.zip -d /tmp # Unzip
-  filename=$(echo ${url} | sed 's:.*/::' | sed 's/\.zip$//') # Determine filename of unzipped CSV (this is the same as the .zip file)
+  filename="${url##*/}"
+  if [ ! -f data/raw/zipped/$filename ]; then
+    echo "File not found, download it"
+    time wget "${url}" -P data/raw/zipped
+    unzip data/raw/zipped/citibike-tripdata.csv.zip -d data/raw/unzipped # Unzip
+  fi
+
+  # Determine filename of unzipped CSV (this is the same as the .zip file)
+  filename=$(echo ${url} | sed 's:.*/::' | sed 's/\.zip$//')
   # Filter lines otherwise full Docker image is 4.18GB, every 8th line results in 890MB
   time awk -F',' 'NR == 1 || NR % 8 == 0 {print $1","$2","$3","$4","$5","$6","$7","$8","$9","$10","$11}' /tmp/${filename} | grep -v "NULL" > /tmp/citibike-tripdata.csv # Extract specific columns, write result to new file
   time psql -v ON_ERROR_STOP=1 citibike <<-EOSQL
