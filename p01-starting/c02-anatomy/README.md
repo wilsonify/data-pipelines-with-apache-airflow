@@ -4,8 +4,9 @@ Code accompanying Chapter 2 of the book [Data Pipelines with Apache Airflow](htt
 
 ## Contents
 
-This folder contains DAGs from Chapter 2. The filenames and DAG ids follow the listing ids in the book. The
-final DAG is given in `listing_2_10.py`.
+This folder contains DAGs from Chapter 2. 
+The filenames and DAG ids follow the listing ids in the book. 
+The final DAG is given in `listing_2_10.py`.
 
 ## Usage
 
@@ -15,11 +16,34 @@ To get started with the code examples, start Airflow with Docker Compose with th
 docker-compose up -d
 ```
 
-The webserver initializes a few things, so wait for a few seconds, and you should be able to access the
+The webserver initializes a few things, 
+so wait for a few seconds, 
+and you should be able to access the
+
 Airflow webserver at http://localhost:8080.
 
-To stop running the examples, run the following command:
+To stop running the examples, 
+run the following command:
 
 ```bash
 docker-compose down -v
+```
+
+# Data Flow
+```mermaid
+graph LR
+    subgraph dowload_launches
+        
+    end
+
+john -- fetch next launch --> launchLibrary -- fetch images --> internet
+
+internet -- save images --> computer
+
+launchLibrary -- save launch --> computer
+```
+
+# Data Flow
+```mermaid
+
 ```

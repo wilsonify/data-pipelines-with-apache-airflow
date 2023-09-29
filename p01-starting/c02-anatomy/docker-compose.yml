@@ -19,11 +19,10 @@ services:
       - POSTGRES_USER=airflow
       - POSTGRES_PASSWORD=airflow
       - POSTGRES_DB=airflow
-    ports:
-      - "5432:5432"
 
   init:
     image: *airflow_image
+    restart: no
     depends_on:
       - postgres
     environment: *airflow_environment
@@ -37,8 +36,6 @@ services:
       - postgres
     ports:
       - "8080:8080"
-    volumes:
-      - logs:/opt/airflow/logs
     environment: *airflow_environment
     command: webserver
 
@@ -48,10 +45,6 @@ services:
     depends_on:
       - postgres
     volumes:
-      - logs:/opt/airflow/logs
       - ./dags:/opt/airflow/dags
     environment: *airflow_environment
     command: scheduler
-
-volumes:
-  logs:
