@@ -1,0 +1,7 @@
+pytest
+pytest-helpers-namespace
+pytest-mock
+pytest-docker-tools
+apache-airflow
+apache-airflow-providers-postgres
+

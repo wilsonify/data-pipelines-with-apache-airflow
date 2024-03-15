@@ -68,7 +68,7 @@ services:
     command: scheduler
 
   movielens:
-    build: ../chapter08/docker/movielens-api
+    build: ../c08-custom-components/docker/movielens-api
     ports:
       - "5000:5000"
     environment:
