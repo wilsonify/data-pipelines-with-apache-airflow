@@ -2,7 +2,7 @@ from airflow.hooks.base import BaseHook
 from airflow.models import Connection
 from pytest_mock import MockFixture
 
-from airflowbook.operators.operators.MovielensPopularityOperator import MovielensPopularityOperator
+from airflowbook.operators.MovielensPopularityOperator import MovielensPopularityOperator
 
 
 def test_movielenspopularityoperator(mocker: MockFixture):

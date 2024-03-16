@@ -2,7 +2,7 @@ import json
 
 from airflow.models import BaseOperator
 
-from airflowbook.operators.hooks.MovielensHook import MovielensHook
+from airflowbook.hooks.MovielensHook import MovielensHook
 
 
 class MovielensDownloadOperator(BaseOperator):
@@ -21,6 +21,6 @@ class MovielensDownloadOperator(BaseOperator):
                 start_date=self._start_date,
                 end_date=self._end_date,
             )
-
-        with open(self._output_path, "w") as f:
-            f.write(json.dumps(ratings))
+            for count,batch in enumerate(ratings):
+                with open(f"{self._output_path}/{count}.json", "w") as f:
+                    f.write(json.dumps(ratings))

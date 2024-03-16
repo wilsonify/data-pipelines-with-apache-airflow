@@ -3,7 +3,7 @@ import errno
 import json
 import os
 
-from airflowbook.operators.operators.JsonToCsvOperator import JsonToCsvOperator
+from airflowbook.operators.JsonToCsvOperator import JsonToCsvOperator
 
 
 def remove_without_errors(file_path):

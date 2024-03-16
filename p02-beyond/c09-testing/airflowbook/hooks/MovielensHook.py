@@ -23,7 +23,7 @@ class MovielensHook(BaseHook):
     DEFAULT_PORT = 5000
 
     def __init__(self, conn_id, retry=3):
-        super().__init__(source=None)
+        super().__init__()
         self._conn_id = conn_id
         self._retry = retry
 
@@ -80,7 +80,7 @@ class MovielensHook(BaseHook):
         """Fetches a list of users."""
         raise NotImplementedError()
 
-    def get_ratings(self, start_date=None, end_date=None, batch_size=100):
+    def get_ratings(self, start_date: str, end_date: str, batch_size: int = 100):
         """
         Fetches ratings between the given start/end date.
 

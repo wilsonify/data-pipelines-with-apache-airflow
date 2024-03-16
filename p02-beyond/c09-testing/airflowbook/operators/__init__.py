@@ -1,0 +1,5 @@
+from airflowbook.operators.MovielensDownloadOperator import MovielensDownloadOperator
+from airflowbook.operators.MovielensToPostgresOperator import MovielensToPostgresOperator
+from airflowbook.operators.JsonToCsvOperator import JsonToCsvOperator
+from airflowbook.operators.MovielensPopularityOperator import MovielensPopularityOperator
+from airflowbook.operators.MovielensFetchRatingsOperator import MovielensFetchRatingsOperator

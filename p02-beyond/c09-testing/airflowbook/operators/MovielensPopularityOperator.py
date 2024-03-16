@@ -2,7 +2,7 @@ from collections import defaultdict, Counter
 
 from airflow.models import BaseOperator
 
-from airflowbook.operators.hooks.MovielensHook import MovielensHook
+from airflowbook.hooks.MovielensHook import MovielensHook
 
 
 class MovielensPopularityOperator(BaseOperator):

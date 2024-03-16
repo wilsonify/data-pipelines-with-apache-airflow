@@ -1,8 +1,8 @@
 from airflow.models import Connection
 from airflow.operators.bash import BashOperator
 
-from airflowbook.operators.hooks.MovielensHook import MovielensHook
-from airflowbook.operators.operators.MovielensPopularityOperator import MovielensPopularityOperator
+from airflowbook.hooks.MovielensHook import MovielensHook
+from airflowbook.operators.MovielensPopularityOperator import MovielensPopularityOperator
 
 
 def test_movielenspopularityoperator(mocker):
