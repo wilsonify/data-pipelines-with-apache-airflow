@@ -1,4 +1,4 @@
-age,name,sex
-41,bob,M
-24,alice,F
-60,carol,F
+sex,name,age
+M,bob,41
+F,alice,24
+F,carol,60

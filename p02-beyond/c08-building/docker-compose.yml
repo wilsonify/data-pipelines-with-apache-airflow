@@ -1,21 +1,4 @@
 version: '3.7'
-# ====================================== AIRFLOW ENVIRONMENT VARIABLES =======================================
-x-environment: &airflow_environment
-  # Airflow settings.
-  - AIRFLOW__CORE__EXECUTOR=LocalExecutor
-  - AIRFLOW__CORE__LOAD_DEFAULT_CONNECTIONS=False
-  - AIRFLOW__CORE__LOAD_EXAMPLES=False
-  - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgresql://airflow:airflow@postgres:5432/airflow
-  - AIRFLOW__CORE__STORE_DAG_CODE=True
-  - AIRFLOW__CORE__STORE_SERIALIZED_DAGS=True
-  - AIRFLOW__WEBSERVER__EXPOSE_CONFIG=True
-  - AIRFLOW__WEBSERVER__RBAC=False
-  # Movielens API settings.
-  - AIRFLOW_CONN_MOVIELENS=http://airflow:airflow@movielens
-  - MOVIELENS_USER=airflow
-  - MOVIELENS_PASSWORD=airflow
-x-airflow-image: &airflow_image apache/airflow:2.0.0-python3.8
-# ====================================== /AIRFLOW ENVIRONMENT VARIABLES ======================================
 services:
   postgres:
     image: postgres:12-alpine
@@ -29,18 +12,29 @@ services:
     build:
       context: ../c02-scheduling/docker/airflow-data
       args:
-        AIRFLOW_BASE_IMAGE: *airflow_image
+        AIRFLOW_BASE_IMAGE: "apache/airflow:2.0.0-python3.8"
     image: manning-airflow/airflow-data
     depends_on:
       - postgres
-    environment: *airflow_environment
+    environment:
+      - AIRFLOW__CORE__EXECUTOR=LocalExecutor
+      - AIRFLOW__CORE__LOAD_DEFAULT_CONNECTIONS=False
+      - AIRFLOW__CORE__LOAD_EXAMPLES=False
+      - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgresql://airflow:airflow@postgres:5432/airflow
+      - AIRFLOW__CORE__STORE_DAG_CODE=True
+      - AIRFLOW__CORE__STORE_SERIALIZED_DAGS=True
+      - AIRFLOW__WEBSERVER__EXPOSE_CONFIG=True
+      - AIRFLOW__WEBSERVER__RBAC=False
+      - AIRFLOW_CONN_MOVIELENS=http://airflow:airflow@movielens
+      - MOVIELENS_USER=airflow
+      - MOVIELENS_PASSWORD=airflow
     entrypoint: /bin/bash
     command: -c 'airflow db upgrade && sleep 5 && airflow users create --username admin --password admin --firstname Anonymous --lastname Admin --role Admin --email admin@example.org'
   webserver:
     build:
       context: ../c02-scheduling/docker/airflow-data
       args:
-        AIRFLOW_BASE_IMAGE: *airflow_image
+        AIRFLOW_BASE_IMAGE: "apache/airflow:2.0.0-python3.8"
     image: manning-airflow/airflow-data
     restart: always
     depends_on:
@@ -49,13 +43,24 @@ services:
       - "8080:8080"
     volumes:
       - logs:/opt/airflow/logs
-    environment: *airflow_environment
+    environment:
+      - AIRFLOW__CORE__EXECUTOR=LocalExecutor
+      - AIRFLOW__CORE__LOAD_DEFAULT_CONNECTIONS=False
+      - AIRFLOW__CORE__LOAD_EXAMPLES=False
+      - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgresql://airflow:airflow@postgres:5432/airflow
+      - AIRFLOW__CORE__STORE_DAG_CODE=True
+      - AIRFLOW__CORE__STORE_SERIALIZED_DAGS=True
+      - AIRFLOW__WEBSERVER__EXPOSE_CONFIG=True
+      - AIRFLOW__WEBSERVER__RBAC=False
+      - AIRFLOW_CONN_MOVIELENS=http://airflow:airflow@movielens
+      - MOVIELENS_USER=airflow
+      - MOVIELENS_PASSWORD=airflow
     command: webserver
   scheduler:
     build:
       context: ../c02-scheduling/docker/airflow-data
       args:
-        AIRFLOW_BASE_IMAGE: *airflow_image
+        AIRFLOW_BASE_IMAGE: "apache/airflow:2.0.0-python3.8"
     image: manning-airflow/airflow-data
     restart: always
     depends_on:
@@ -64,7 +69,18 @@ services:
       - ./dags:/opt/airflow/dags
       - data:/data
       - logs:/opt/airflow/logs
-    environment: *airflow_environment
+    environment:
+      - AIRFLOW__CORE__EXECUTOR=LocalExecutor
+      - AIRFLOW__CORE__LOAD_DEFAULT_CONNECTIONS=False
+      - AIRFLOW__CORE__LOAD_EXAMPLES=False
+      - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgresql://airflow:airflow@postgres:5432/airflow
+      - AIRFLOW__CORE__STORE_DAG_CODE=True
+      - AIRFLOW__CORE__STORE_SERIALIZED_DAGS=True
+      - AIRFLOW__WEBSERVER__EXPOSE_CONFIG=True
+      - AIRFLOW__WEBSERVER__RBAC=False
+      - AIRFLOW_CONN_MOVIELENS=http://airflow:airflow@movielens
+      - MOVIELENS_USER=airflow
+      - MOVIELENS_PASSWORD=airflow
     command: scheduler
   movielens:
     build: docker/movielens-api

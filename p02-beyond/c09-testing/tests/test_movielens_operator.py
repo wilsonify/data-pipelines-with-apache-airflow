@@ -7,7 +7,6 @@ from airflow.models import Connection
 from airflow.providers.postgres.hooks.postgres import PostgresHook
 
 from airflowbook.operators import MovielensDownloadOperator, MovielensToPostgresOperator
-from tests.conftest import test_dag
 
 
 def test_movielens_download_operator():
@@ -56,6 +55,6 @@ def test_movielens_to_postgres_operator():
     pg_hook = PostgresHook()
     row_count = pg_hook.get_first("SELECT COUNT(*) FROM movielens")[0]
     assert row_count == 0
-    pytest.helpers.run_airflow_task(task, test_dag)
+    pytest.helpers.run_airflow_task(task, test_dag1)
     row_count = pg_hook.get_first("SELECT COUNT(*) FROM movielens")[0]
     assert row_count > 0

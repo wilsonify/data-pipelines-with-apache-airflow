@@ -16,11 +16,30 @@ class JsonToCsvOperator(BaseOperator):
         self._output_dir = output_dir
         self._output_path = f"{output_dir}/{input_tail}.csv"
 
-    def execute(self, context):
+    @staticmethod
+    def write_json(input_data, input_path):
+        with open(input_path, "w") as f:
+            f.write(json.dumps(input_data))
+
+    @staticmethod
+    def read_csv(path_to_csv):
+        with open(path_to_csv, "r") as f:
+            reader = csv.DictReader(f)
+            result = [dict(row) for row in reader]
+        return result
+
+    def read_json(self):
         with open(self._input_path, "r") as json_file:
             data = json.load(json_file)
+        return data
+
+    def write_csv(self, data):
         columns = {key for row in data for key in row.keys()}
         with open(self._output_path, mode="w") as csv_file:
             writer = csv.DictWriter(csv_file, fieldnames=columns)
             writer.writeheader()
             writer.writerows(data)
+
+    def execute(self, context):
+        data = self.read_json()
+        self.write_csv(data)
