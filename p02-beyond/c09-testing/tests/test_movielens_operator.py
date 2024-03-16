@@ -71,8 +71,3 @@ def test_movielens_to_postgres_operator(mocker: MockFixture, test_dag: DAG, post
     assert row_count > 0
 
 
-def test_call_fixture(postgres_container):
-    n = postgres_container.name
-    p = postgres_container.ports['5432/tcp'][0]
-    msg = f"Running Postgres container named {n} on port {p}."
-    print(msg)
