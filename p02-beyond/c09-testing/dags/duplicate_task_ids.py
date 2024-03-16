@@ -10,4 +10,4 @@ dag = DAG(
 
 t1 = DummyOperator(task_id="task", dag=dag)
 for i in range(5):
-    DummyOperator(task_id="task", dag=dag) >> t1
+    DummyOperator(task_id=f"task{i}", dag=dag) >> t1

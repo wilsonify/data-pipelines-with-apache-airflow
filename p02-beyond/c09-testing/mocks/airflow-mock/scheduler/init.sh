@@ -1,0 +1,8 @@
+airflow db upgrade && \
+airflow users create \
+--username admin \
+--password admin \
+--firstname Anonymous \
+--lastname Admin \
+--role Admin \
+--email admin@example.org

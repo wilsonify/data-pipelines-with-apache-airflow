@@ -23,15 +23,23 @@ class MovielensPopularityOperator(BaseOperator):
         self._top_n = top_n
 
     def execute(self, context):
-        with MovielensHook(self._conn_id) as hook:
-            ratings = hook.get_ratings(
-                start_date=self._start_date,
-                end_date=self._end_date,
-            )
-            rating_sums = defaultdict(Counter)
+        rating_sums = defaultdict(Counter)
+        averages = defaultdict(float)
+        mlh = MovielensHook(conn_id=self._conn_id)
+        ratings = mlh.get_ratings(start_date=self._start_date, end_date=self._end_date)
 
-            for rating in ratings:
-                rating_sums[rating["movieId"]].update(count=1, rating=rating["rating"])
-                averages = {"movie_id": (rating_sums["rating"] / rating_sums["count"], rating_sums["count"]) for
-                            movie_id, rating_sums in rating_sums.items() if rating_sums["count"] >= self._min_ratings}
-                return sorted(averages.items(), key=lambda x: x[1], reverse=True)[: self._top_n]
+        for rating in ratings:
+            mid = rating["movieId"]
+            mrating = rating["rating"]
+            rating_sums[mid].update(
+                count=1,
+                rating=mrating
+            )
+        for movie_id, rating_sum in rating_sums.items():
+            rsr = rating_sum["rating"]
+            rsc = rating_sum["count"]
+            if rsc >= self._min_ratings:
+                ratio = rsr / rsc
+                averages[movie_id] = ratio
+        result = sorted(averages.items(), key=lambda x: averages.get(x), reverse=True)[: self._top_n]
+        return result
