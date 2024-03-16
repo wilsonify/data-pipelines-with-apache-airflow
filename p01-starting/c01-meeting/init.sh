@@ -6,4 +6,4 @@ airflow users create \
 --firstname Anonymous \
 --lastname Admin \
 --role Admin \
---email admin@example.org'
+--email admin@example.org

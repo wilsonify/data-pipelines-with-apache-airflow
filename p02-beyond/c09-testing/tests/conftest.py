@@ -1,7 +1,10 @@
+"""Conftest file."""
+
 import datetime
 
 import pytest
-from airflow.models import DAG, BaseOperator
+from airflow import DAG
+from airflow.models import BaseOperator
 
 pytest_plugins = ["helpers_namespace"]
 

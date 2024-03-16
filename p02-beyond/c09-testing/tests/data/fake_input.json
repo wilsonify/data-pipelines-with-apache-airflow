@@ -1,0 +1,17 @@
+[
+  {
+    "name": "bob",
+    "age": "41",
+    "sex": "M"
+  },
+  {
+    "name": "alice",
+    "age": "24",
+    "sex": "F"
+  },
+  {
+    "name": "carol",
+    "age": "60",
+    "sex": "F"
+  }
+]

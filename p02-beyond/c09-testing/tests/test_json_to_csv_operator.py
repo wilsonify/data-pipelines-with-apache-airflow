@@ -1,35 +1,37 @@
 import csv
+import errno
 import json
-from pathlib import Path
+import os
 
 from airflowbook.operators.operators.JsonToCsvOperator import JsonToCsvOperator
 
 
-def test_json_to_csv_operator(tmp_path: Path):
-    print(tmp_path.as_posix())
+def remove_without_errors(file_path):
+    try:
+        os.remove(file_path)
+    except OSError as e:
+        if e.errno != errno.ENOENT:  # Ignore error if file does not exist
+            raise  # Re-raise any other OSError
 
-    input_path = tmp_path / "input.json"
-    output_path = tmp_path / "output.csv"
 
-    # Write input data to tmp path
-    input_data = [
-        {"name": "bob", "age": "41", "sex": "M"},
-        {"name": "alice", "age": "24", "sex": "F"},
-        {"name": "carol", "age": "60", "sex": "F"},
-    ]
+def write_input_json(input_data, input_path):
     with open(input_path, "w") as f:
         f.write(json.dumps(input_data))
 
-    # Run task
-    operator = JsonToCsvOperator(
-        task_id="test", input_path=input_path, output_path=output_path
-    )
-    operator.execute(context={})
 
-    # Read result
+def read_output_csv(output_path):
     with open(output_path, "r") as f:
         reader = csv.DictReader(f)
         result = [dict(row) for row in reader]
+    return result
 
-    # Assert
-    assert result == input_data
+
+def test_json_to_csv_operator():
+    fake_input_data = json.load(open(f"{os.path.dirname(__file__)}/data/fake_input.json"))
+    write_input_json(fake_input_data, "input.json")
+    strat = JsonToCsvOperator(task_id="test", input_path="input.json", output_path="output.csv")
+    strat.execute(context={})
+    result = read_output_csv("output.csv")
+    assert result == fake_input_data
+    remove_without_errors("input.json")
+    remove_without_errors("output.csv")
