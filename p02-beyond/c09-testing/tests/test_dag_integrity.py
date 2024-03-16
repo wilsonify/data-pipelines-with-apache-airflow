@@ -6,7 +6,8 @@ from airflow.utils.dag_cycle_tester import test_cycle as check_for_cycles
 from dags import (
     bash_operator_no_command,
     dag_cycle,
-    duplicate_task_ids, testme
+    duplicate_task_ids,
+    testme
 )
 
 
