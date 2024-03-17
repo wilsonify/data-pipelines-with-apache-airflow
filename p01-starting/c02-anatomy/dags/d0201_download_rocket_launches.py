@@ -1,14 +1,14 @@
-import airflow.utils.dates
 from airflow import DAG
 from airflow.operators.bash import BashOperator
 from airflow.operators.python import PythonOperator
+from airflow.utils.dates import days_ago
 
 from c02_anatomy.get_pictures import _get_pictures
 
 dag = DAG(
     dag_id="download_rocket_launches",
     description="Download rocket pictures of recently launched rockets.",
-    start_date=airflow.utils.dates.days_ago(14),
+    start_date=days_ago(14),
     schedule_interval="@daily",
 )
 
