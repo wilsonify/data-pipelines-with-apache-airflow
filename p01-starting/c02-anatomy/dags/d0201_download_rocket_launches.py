@@ -1,9 +1,4 @@
-import json
-import pathlib
-
-import airflow
-import requests
-import requests.exceptions as requests_exceptions
+import airflow.utils.dates
 from airflow import DAG
 from airflow.operators.bash import BashOperator
 from airflow.operators.python import PythonOperator
@@ -11,7 +6,8 @@ from airflow.operators.python import PythonOperator
 from c02_anatomy.get_pictures import _get_pictures
 
 dag = DAG(
-    dag_id="listing_2_10",
+    dag_id="download_rocket_launches",
+    description="Download rocket pictures of recently launched rockets.",
     start_date=airflow.utils.dates.days_ago(14),
     schedule_interval="@daily",
 )
@@ -23,7 +19,9 @@ download_launches = BashOperator(
 )
 
 get_pictures = PythonOperator(
-    task_id="get_pictures", python_callable=_get_pictures, dag=dag
+    task_id="get_pictures",
+    python_callable=_get_pictures,
+    dag=dag
 )
 
 notify = BashOperator(
@@ -32,4 +30,5 @@ notify = BashOperator(
     dag=dag,
 )
 
+# Defining the order of task execution
 download_launches >> get_pictures >> notify

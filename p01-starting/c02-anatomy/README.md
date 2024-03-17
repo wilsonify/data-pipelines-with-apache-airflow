@@ -32,18 +32,28 @@ docker-compose down -v
 # Data Flow
 ```mermaid
 graph LR
-    subgraph dowload_launches
-        
+    subgraph DAG
+        download_launches --> get_pictures --> notify
     end
-
-john -- fetch next launch --> launchLibrary -- fetch images --> internet
-
-internet -- save images --> computer
-
-launchLibrary -- save launch --> computer
 ```
 
-# Data Flow
-```mermaid
+# Anatomy of a DAG
 
+Airflow uses DAGs and operators
+Tasks are internal components to manage and display the state of an operator (e.g., started/finished)
+
+```mermaid
+graph LR
+    subgraph DAG
+        subgraph Task1[Task1 = Finished]
+            Operator1
+        end
+        subgraph Task2[Task2 = Progressing]
+            Operator2
+        end
+        subgraph Task3[Task3 = Pending]
+            Operator3
+        end
+        Task1 --> Task2 --> Task3
+    end        
 ```
