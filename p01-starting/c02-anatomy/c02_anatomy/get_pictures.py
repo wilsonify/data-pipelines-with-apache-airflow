@@ -7,6 +7,12 @@ from requests import exceptions as requests_exceptions
 from c02_anatomy.ensure_directory_exists import ensure_directory_exists
 
 
+def read_img_from_file(source_file):
+    with open(source_file, "rb") as f:
+        content = f.read()
+    return content
+
+
 def write_img_to_file(content, target_file):
     with open(target_file, "wb") as f:
         f.write(content)
@@ -37,4 +43,5 @@ def _get_pictures():
     # Download all pictures in launches.json
     image_urls = read_launches_json("/tmp/launches.json")
     for image_url in image_urls:
+        print("image_url")
         download_one_picture(image_url)
