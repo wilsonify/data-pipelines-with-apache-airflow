@@ -14,6 +14,10 @@ def read_img_from_file(source_file):
 
 
 def write_img_to_file(content, target_file):
+    target_head, target_tail = os.path.split(target_file)
+    os.makedirs(target_head, exist_ok=True)
+    print(f"target_head = {target_head}")
+    print(f"target_tail = {target_tail}")
     with open(target_file, "wb") as f:
         f.write(content)
 
