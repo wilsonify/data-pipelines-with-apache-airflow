@@ -1,11 +1,11 @@
 import datetime as dt
-from pathlib import Path
-
-import pandas as pd
 
 from airflow import DAG
 from airflow.operators.bash import BashOperator
 from airflow.operators.python import PythonOperator
+
+from c03_scheduling._calculate_stats import _calculate_stats2
+from c03_scheduling._email_stats import _send_stats
 
 dag = DAG(
     dag_id="11_atomic_send",
@@ -27,39 +27,15 @@ fetch_events = BashOperator(
     dag=dag,
 )
 
-
-def _calculate_stats(**context):
-    """Calculates event statistics."""
-    input_path = context["templates_dict"]["input_path"]
-    output_path = context["templates_dict"]["output_path"]
-
-    events = pd.read_json(input_path)
-    stats = events.groupby(["date", "user"]).size().reset_index()
-
-    Path(output_path).parent.mkdir(exist_ok=True)
-    stats.to_csv(output_path, index=False)
-
-
 calculate_stats = PythonOperator(
     task_id="calculate_stats",
-    python_callable=_calculate_stats,
+    python_callable=_calculate_stats2,
     templates_dict={
         "input_path": "/data/events/{{ds}}.json",
         "output_path": "/data/stats/{{ds}}.csv",
     },
     dag=dag,
 )
-
-
-def email_stats(stats, email):
-    """Send an email..."""
-    print(f"Sending stats to {email}...")
-
-
-def _send_stats(email, **context):
-    stats = pd.read_csv(context["templates_dict"]["stats_path"])
-    email_stats(stats, email=email)
-
 
 send_stats = PythonOperator(
     task_id="send_stats",

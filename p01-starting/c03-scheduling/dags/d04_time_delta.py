@@ -1,16 +1,16 @@
-from datetime import datetime
-from pathlib import Path
+import datetime as dt
 
-import pandas as pd
 from airflow import DAG
 from airflow.operators.bash import BashOperator
 from airflow.operators.python import PythonOperator
 
+from c03_scheduling._calculate_stats import _calculate_stats
+
 dag = DAG(
-    dag_id="02_daily_schedule",
-    schedule_interval="@daily",
-    start_date=datetime(2019, 1, 1),
-    end_date=datetime(2019, 1, 5),
+    dag_id="04_time_delta",
+    schedule_interval=dt.timedelta(days=3),
+    start_date=dt.datetime(year=2019, month=1, day=1),
+    end_date=dt.datetime(year=2019, month=1, day=5),
 )
 
 fetch_events = BashOperator(
@@ -21,17 +21,6 @@ fetch_events = BashOperator(
     ),
     dag=dag,
 )
-
-
-def _calculate_stats(input_path, output_path):
-    """Calculates event statistics."""
-
-    events = pd.read_json(input_path)
-    stats = events.groupby(["date", "user"]).size().reset_index()
-
-    Path(output_path).parent.mkdir(exist_ok=True)
-    stats.to_csv(output_path, index=False)
-
 
 calculate_stats = PythonOperator(
     task_id="calculate_stats",

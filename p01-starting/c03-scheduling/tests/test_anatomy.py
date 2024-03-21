@@ -3,15 +3,24 @@ from os.path import dirname
 
 from airflow import DAG
 from airflow.operators.bash import BashOperator
+from airflow.operators.python import PythonOperator
 from airflow.utils.dag_cycle_tester import test_cycle as check_for_cycles
 
-from c02_anatomy.echo_line_count import notify_cmd_str
-from c02_anatomy.get_pictures import read_img_from_file, download_one_picture
+from c02_anatomy.get_pictures import read_img_from_file
+from c03_scheduling._calculate_stats import _calculate_stats, _calculate_stats2
 from dags import (
-    d0203_Instantiate_DAG,
-    d0204_Instantiate_bash_operator,
-    d0206_invoking_python_operator,
-    d02010_download_rocket_launches
+    d01_unscheduled,
+    d02_daily_schedule,
+    d03_with_end_date,
+    d04_time_delta,
+    d05_query_with_dates,
+    d06_templated_query,
+    d07_templated_query_ds,
+    d08_templated_path,
+    d09_no_catchup,
+    d10_non_atomic_send,
+    d11_atomic_send,
+
 )
 
 path_to_data = f"{dirname(__file__)}/data"
@@ -27,20 +36,48 @@ def validate_dag(module):
             check_for_cycles(var)
 
 
-def test_d0203_instantiate_dag():
-    validate_dag(d0203_Instantiate_DAG)
+def test_d01_unscheduled():
+    validate_dag(d01_unscheduled)
 
 
-def test_d0204_instantiate_bash_operator():
-    validate_dag(d0204_Instantiate_bash_operator)
+def test_d02_daily_schedule():
+    validate_dag(d02_daily_schedule)
 
 
-def test_d0206_invoking_python_operato():
-    validate_dag(d0206_invoking_python_operator)
+def test_d03_with_end_date():
+    validate_dag(d03_with_end_date)
 
 
-def test_d02010_download_rocket_launches():
-    validate_dag(d02010_download_rocket_launches)
+def test_d04_time_delta():
+    validate_dag(d04_time_delta)
+
+
+def test_d05_query_with_dates():
+    validate_dag(d05_query_with_dates)
+
+
+def test_d06_templated_query():
+    validate_dag(d06_templated_query)
+
+
+def test_d07_templated_query_ds():
+    validate_dag(d07_templated_query_ds)
+
+
+def test_d08_templated_path():
+    validate_dag(d08_templated_path)
+
+
+def test_d09_no_catchup():
+    validate_dag(d09_no_catchup)
+
+
+def test_d10_non_atomic_send():
+    validate_dag(d10_non_atomic_send)
+
+
+def test_d11_atomic_send():
+    validate_dag(d11_atomic_send)
 
 
 def test_read_img_from_file():
@@ -49,22 +86,30 @@ def test_read_img_from_file():
     assert checksum == "fe294c6a0f9bd2efa9142dd204017871"
 
 
-def test_download_launches():
-    curl_command_list = [
-        "curl",
-        "-o", f"{path_to_data}/output/launches.json",
-        "-L", "https://ll.thespacedevs.com/2.0.0/launch/upcoming"
-    ]
-    curl_command_str = " ".join(curl_command_list)
-    strat = BashOperator(task_id="download_launches", bash_command=curl_command_str)
-    strat.execute({})
+def test_fetch_events():
+    fetch_events = BashOperator(
+        task_id="fetch_events",
+        bash_command=(
+            "mkdir -p /data/events && "
+            "curl -o /data/events.json http://events_api:5000/events"
+        )
+    )
+    fetch_events.execute({})
 
 
-def test_download_one_picture():
-    download_one_picture(
-        "https://spacelaunchnow-prod-east.nyc3.digitaloceanspaces.com/media/images/cz-8_liftoff_2_image_20240315183218.jpg")
+def test_calculate_stats():
+    calculate_stats = PythonOperator(
+        task_id="calculate_stats",
+        python_callable=_calculate_stats,
+        op_kwargs={"input_path": "/data/events.json", "output_path": "/data/stats.csv"},
+    )
+    calculate_stats.execute({})
 
 
-def test_notify():
-    strat = BashOperator(task_id="notify", bash_command=notify_cmd_str)
-    strat.execute({})
+def test_calculate_stats2():
+    calculate_stats = PythonOperator(
+        task_id="calculate_stats",
+        python_callable=_calculate_stats2,
+        op_kwargs={"input_path": "/data/events.json", "output_path": "/data/stats.csv"},
+    )
+    calculate_stats.execute({})
