@@ -67,3 +67,13 @@ docker-compose down -v
 | prev_start_date_success | Date and time on which the last successful run of the same task (only in past) was started | pendulum.datetime.DateTime object |
 
 ```
+
+
+## Summary of templating and hooks in Airflow
+
+- Certain arguments of operators in Airflow can be templated, allowing for dynamic values.
+- Templating occurs at runtime, enabling flexibility in task execution.
+- Templating in the `PythonOperator` operates differently compared to other operators; variables are passed to the provided Python callable.
+- The rendered result of templated arguments can be verified using `airflow tasks render`.
+- Operators interact with external systems through hooks, providing a means of communication.
+- While operators specify what needs to be done, hooks define how the work should be carried out, enhancing reusability.
