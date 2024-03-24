@@ -5,6 +5,7 @@ from airflow.operators.bash import BashOperator
 from airflow.operators.python import PythonOperator
 from airflow.providers.postgres.operators.postgres import PostgresOperator
 from airflow.utils.dag_cycle_tester import test_cycle as check_for_cycles
+from airflow.utils.dates import days_ago
 
 from c04_templating.fetch_pageviews import _fetch_pageviews
 from c04_templating.get_data import _get_data, _get_data2, _get_data3
@@ -71,22 +72,33 @@ def test_d0420_INSERT_to_Postgres_postgres():
     validate_dag(d0420_INSERT_to_Postgres_postgres)
 
 
-def test_get_data_bash():
-    get_data = BashOperator(
-        task_id="get_data",
-        bash_command=(
-            "curl -o /tmp/wikipageviews.gz "
-            "https://dumps.wikimedia.org/other/pageviews/"
-            "{{ execution_date.year }}/"
-            "{{ execution_date.year }}-{{ '{:02}'.format(execution_date.month) }}/"
-            "pageviews-{{ execution_date.year }}"
-            "{{ '{:02}'.format(execution_date.month) }}"
-            "{{ '{:02}'.format(execution_date.day) }}-"
-            "{{ '{:02}'.format(execution_date.hour) }}0000.gz"
-        )
-
+def test_bash_operator_execution():
+    # Define your DAG
+    dag = DAG(
+        dag_id="test_bash_operator",
+        start_date=days_ago(1),
+        schedule_interval=None,
     )
-    get_data.execute({})
+    bash_command = "echo 'Hello, world!'"
+    bash_task = BashOperator(
+        task_id="test_bash_task",
+        bash_command=bash_command,
+        dag=dag
+    )
+    bash_task.execute({})
+
+
+def test_get_data_bash():
+    # Format the command string outside of bash_command
+    command_list = [
+        "mkdir", "-p", "/tmp/wikimedia/pageviews/2019/2019-02/", "&&",
+        "rm", "data/output/pageviews-20190202-120000.gz", "&&",
+        "curl", "-o",
+        "data/output/pageviews-20190202-120000.gz",
+        "https://dumps.wikimedia.org/other/pageviews/2019/2019-02/pageviews-20190202-120000.gz"
+    ]
+    command_str = " ".join(command_list)
+    BashOperator(task_id="get_data", bash_command=command_str).execute({})
 
 
 def test_print_context():
