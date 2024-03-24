@@ -2,7 +2,7 @@ from datetime import datetime
 
 import pytest
 
-from events_api.app import app
+from events_api.__main__ import app
 
 
 @pytest.fixture
@@ -15,10 +15,8 @@ def client():
 def test_events_without_parameters(client):
     """Test /events endpoint without parameters."""
     # Providing valid dates to the endpoint
-    response = client.get('/events?start_date=2019-01-01&end_date=2019-01-03')
-    assert response.status_code == 200
-    data = response.json
-    assert isinstance(data, list)
+    response = client.get('/events')
+    assert response.status_code == 400
 
 
 def test_events_with_valid_parameters(client):
@@ -27,10 +25,15 @@ def test_events_with_valid_parameters(client):
     end_date = '2019-01-03'
     expected_start = datetime.strptime(start_date, '%Y-%m-%d').date()
     expected_end = datetime.strptime(end_date, '%Y-%m-%d').date()
-    response = client.get(f'/events?start_date={start_date}&end_date={end_date}')
+    response = client.get('/events?start_date=2019-01-01&end_date=2019-01-03')
     assert response.status_code == 200
     data = response.json
     assert isinstance(data, list)
+    assert data[:3] == [
+        {"date": "Tue, 01 Jan 2019 00:00:00 GMT", "user": "211.101.7.158"},
+        {"date": "Tue, 01 Jan 2019 00:00:00 GMT", "user": "170.116.8.25"},
+        {"date": "Tue, 01 Jan 2019 00:00:00 GMT", "user": "62.68.154.180"}
+    ]
     for event in data:
         assert 'user' in event
         assert 'date' in event
