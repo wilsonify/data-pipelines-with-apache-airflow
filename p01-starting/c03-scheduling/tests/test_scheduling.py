@@ -87,11 +87,15 @@ def test_read_img_from_file():
 
 
 def test_fetch_events():
+    events_api_host = 'localhost'
+    events_api_port = '5000'
+    start_date = "2019-01-01"
+    end_date = "2019-01-03"
     fetch_events = BashOperator(
         task_id="fetch_events",
         bash_command=(
-            "mkdir -p /data/events && "
-            "curl -o /data/events.json http://events_api:5000/events"
+            "mkdir -p data/output/events && "
+            f"curl -o data/output/events.json http://{events_api_host}:{events_api_port}/events?start_date={start_date}&end_date={end_date}"
         )
     )
     fetch_events.execute({})
@@ -101,7 +105,10 @@ def test_calculate_stats():
     calculate_stats = PythonOperator(
         task_id="calculate_stats",
         python_callable=_calculate_stats,
-        op_kwargs={"input_path": "/data/events.json", "output_path": "/data/stats.csv"},
+        op_kwargs=dict(
+            input_path="data/input/events.json",
+            output_path="data/output/stats1.csv"
+        ),
     )
     calculate_stats.execute({})
 
@@ -110,6 +117,9 @@ def test_calculate_stats2():
     calculate_stats = PythonOperator(
         task_id="calculate_stats",
         python_callable=_calculate_stats2,
-        op_kwargs={"input_path": "/data/events.json", "output_path": "/data/stats.csv"},
+        templates_dict=dict(
+            input_path="data/input/events.json",
+            output_path="data/output/stats1.csv"
+        )
     )
     calculate_stats.execute({})

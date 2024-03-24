@@ -4,7 +4,7 @@ from airflow import DAG
 from airflow.operators.bash import BashOperator
 from airflow.operators.python import PythonOperator
 
-from c03_scheduling import _calculate_stats
+from c03_scheduling._calculate_stats import _calculate_stats
 
 dag = DAG(
     dag_id="02_daily_schedule",

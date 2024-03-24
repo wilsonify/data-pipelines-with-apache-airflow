@@ -20,8 +20,8 @@ fetch_events = BashOperator(
         "mkdir -p /data/events && "
         "curl -o /data/events.json "
         "http://events_api:5000/events?"
-        "start_date={{ds}}&"
-        "end_date={{next_ds}}"
+        "start_date={{ds}}&"  # in airflow, ds is equivalent to execution_date.strftime('%Y-%m-%d')
+        "end_date={{next_ds}}"  # in airflow, next_ds is equivalent to next_execution_date.strftime('%Y-%m-%d')
     ),
     dag=dag,
 )

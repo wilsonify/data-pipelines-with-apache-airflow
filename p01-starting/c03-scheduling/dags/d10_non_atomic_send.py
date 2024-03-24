@@ -28,7 +28,7 @@ fetch_events = BashOperator(
 
 calculate_stats = PythonOperator(
     task_id="calculate_stats",
-    python_callable=_calculate_stats3,
+    python_callable=_calculate_stats3,  # Non-Atomic on partial failure
     templates_dict={
         "input_path": "/data/events/{{ds}}.json",
         "output_path": "/data/stats/{{ds}}.csv",

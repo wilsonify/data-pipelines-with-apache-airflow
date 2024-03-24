@@ -5,7 +5,7 @@ from airflow.operators.bash import BashOperator
 from airflow.operators.python import PythonOperator
 
 from c03_scheduling._calculate_stats import _calculate_stats2
-from c03_scheduling._email_stats import _send_stats
+from c03_scheduling._email_stats import _print_stats_from_template
 
 dag = DAG(
     dag_id="11_atomic_send",
@@ -39,7 +39,7 @@ calculate_stats = PythonOperator(
 
 send_stats = PythonOperator(
     task_id="send_stats",
-    python_callable=_send_stats,
+    python_callable=_print_stats_from_template,
     op_kwargs={"email": "user@example.com"},
     templates_dict={"stats_path": "/data/stats/{{ds}}.csv"},
     dag=dag,
