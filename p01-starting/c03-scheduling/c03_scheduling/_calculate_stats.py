@@ -26,9 +26,15 @@ def _calculate_stats(input_path, output_path):
 
 def _calculate_stats2(**context):
     """
-    Calculates event statistics.
-    from templated context
-    { 'templates_dict': { 'input_path': '/data/events/{{ds}}.json', 'output_path': '/data/stats/{{ds}}.csv' } }
+    same as _calculate_stats, uses context instead of key word arguments
+
+    example input from templated context
+    ```
+    context = { 'templates_dict':
+        { 'input_path': '/data/events/{{ds}}.json', 'output_path': '/data/stats/{{ds}}.csv' }
+    }
+    ```
+
     """
     print(f"kwargs = {context}")
     input_path = context["templates_dict"]["input_path"]
