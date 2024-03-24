@@ -1,8 +1,8 @@
-from urllib import request
-
 import airflow.utils.dates
 from airflow import DAG
 from airflow.operators.python import PythonOperator
+
+from c04_templating.get_data import _get_data
 
 dag = DAG(
     dag_id="listing_4_05",
@@ -10,15 +10,8 @@ dag = DAG(
     schedule_interval="@hourly",
 )
 
-
-def _get_data(execution_date):
-    year, month, day, hour, *_ = execution_date.timetuple()
-    url = (
-        "https://dumps.wikimedia.org/other/pageviews/"
-        f"{year}/{year}-{month:0>2}/pageviews-{year}{month:0>2}{day:0>2}-{hour:0>2}0000.gz"
-    )
-    output_path = "/tmp/wikipageviews.gz"
-    request.urlretrieve(url, output_path)
-
-
-get_data = PythonOperator(task_id="get_data", python_callable=_get_data, dag=dag)
+get_data = PythonOperator(
+    task_id="get_data",
+    python_callable=_get_data,
+    dag=dag
+)

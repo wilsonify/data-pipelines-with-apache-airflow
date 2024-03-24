@@ -2,13 +2,14 @@
 # Documentation of pageview format: https://wikitech.wikimedia.org/wiki/Analytics/Data_Lake/Traffic/Pageviews
 # """
 
-from urllib import request
-
 import airflow.utils.dates
 from airflow import DAG
 from airflow.operators.bash import BashOperator
 from airflow.operators.python import PythonOperator
 from airflow.providers.postgres.operators.postgres import PostgresOperator
+
+from c04_templating.fetch_pageviews import _fetch_pageviews2
+from c04_templating.get_data import _get_data4
 
 dag = DAG(
     dag_id="listing_4_20",
@@ -18,18 +19,9 @@ dag = DAG(
     max_active_runs=1,
 )
 
-
-def _get_data(year, month, day, hour, output_path):
-    url = (
-        "https://dumps.wikimedia.org/other/pageviews/"
-        f"{year}/{year}-{month:0>2}/pageviews-{year}{month:0>2}{day:0>2}-{hour:0>2}0000.gz"
-    )
-    request.urlretrieve(url, output_path)
-
-
 get_data = PythonOperator(
     task_id="get_data",
-    python_callable=_get_data,
+    python_callable=_get_data4,
     op_kwargs={
         "year": "{{ execution_date.year }}",
         "month": "{{ execution_date.month }}",
@@ -40,32 +32,13 @@ get_data = PythonOperator(
     dag=dag,
 )
 
-
 extract_gz = BashOperator(
     task_id="extract_gz", bash_command="gunzip --force /tmp/wikipageviews.gz", dag=dag
 )
 
-
-def _fetch_pageviews(pagenames, execution_date):
-    result = dict.fromkeys(pagenames, 0)
-    with open("/tmp/wikipageviews", "r") as f:
-        for line in f:
-            domain_code, page_title, view_counts, _ = line.split(" ")
-            if domain_code == "en" and page_title in pagenames:
-                result[page_title] = view_counts
-
-    with open("/tmp/postgres_query.sql", "w") as f:
-        for pagename, pageviewcount in result.items():
-            f.write(
-                "INSERT INTO pageview_counts VALUES ("
-                f"'{pagename}', {pageviewcount}, '{execution_date}'"
-                ");\n"
-            )
-
-
 fetch_pageviews = PythonOperator(
     task_id="fetch_pageviews",
-    python_callable=_fetch_pageviews,
+    python_callable=_fetch_pageviews2,
     op_kwargs={"pagenames": {"Google", "Amazon", "Apple", "Microsoft", "Facebook"}},
     dag=dag,
 )
