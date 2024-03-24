@@ -1,11 +1,18 @@
-from datetime import date, datetime, timedelta
 import time
+from datetime import date, datetime, timedelta
 
-from numpy import random
 import pandas as pd
 from faker import Faker
+from flask import Flask, jsonify, request, abort
+from numpy import random
 
-from flask import Flask, jsonify, request
+
+def maybe_str_to_datetime(value):
+    try:
+        result = datetime.strptime(value, "%Y-%m-%d")
+    except:
+        result = None
+    return result
 
 
 def _generate_events(end_date):
@@ -53,24 +60,24 @@ app.config["events"] = _generate_events(end_date=date(year=2019, month=1, day=5)
 
 @app.route("/events")
 def events():
-    start_date = _str_to_datetime(request.args.get("start_date", None))
-    end_date = _str_to_datetime(request.args.get("end_date", None))
+    start_date_from_request = request.args.get("start_date", None)
+    start_date_dt = maybe_str_to_datetime(start_date_from_request)
+    if start_date_dt is None:
+        # Check for invalid dates
+        # Return 400 with helpful message if dates are invalid
+        abort(400, f"Invalid date format. start_date={start_date_dt} must be provided in YYYY-MM-DD format.")
+
+    end_date_from_request = request.args.get("end_date", None)
+    end_date_dt = maybe_str_to_datetime(end_date_from_request)
+    if end_date_dt is None:
+        # Check for invalid dates
+        # Return 400 with helpful message if dates are invalid
+        abort(400, f"Invalid date format. end_date={end_date_dt} must be provided in YYYY-MM-DD format.")
 
     events = app.config.get("events")
-
-    if start_date is not None:
-        events = events.loc[events["date"] >= start_date]
-
-    if end_date is not None:
-        events = events.loc[events["date"] < end_date]
-
+    events = events.loc[events["date"] >= start_date_dt]
+    events = events.loc[events["date"] < end_date_dt]
     return jsonify(events.to_dict(orient="records"))
-
-
-def _str_to_datetime(value):
-    if value is None:
-        return None
-    return datetime.strptime(value, "%Y-%m-%d")
 
 
 if __name__ == "__main__":

@@ -1,0 +1,45 @@
+openapi: "3.1.0"
+info:
+  title: Fake Events API
+  description: An API to generate and retrieve fake events data.
+  version: 1.0.0
+servers:
+  - url: http://localhost:5000
+paths:
+  /events:
+    get:
+      summary: Retrieve events data within a specified date range
+      parameters:
+        - in: query
+          name: start_date
+          schema:
+            type: string
+            format: date
+          description: Start date (YYYY-MM-DD) to filter events (inclusive)
+        - in: query
+          name: end_date
+          schema:
+            type: string
+            format: date
+          description: End date (YYYY-MM-DD) to filter events (exclusive)
+      responses:
+        default:
+          description: Unexpected error
+        200:
+          description: A list of events data
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    user:
+                      type: string
+                      description: IP address of the user
+                    date:
+                      type: string
+                      format: date-time
+                      description: Date and time of the event
+        400:
+          description: Bad request. Invalid date format.

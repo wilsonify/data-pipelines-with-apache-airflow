@@ -2,6 +2,27 @@
 
 Code accompanying Chapter 3 of the book 'Data pipelines with Apache Airflow'.
 
+```mermaid
+sequenceDiagram
+
+    box Day1
+    participant Event1 as Event
+    participant Fetch1 as Fetch
+    participant Aggregate1 as Aggregate
+    end
+    Event1->>Fetch1: events/day1.json 
+    Fetch1->>Aggregate1: stats/day1.csv
+    
+    box Day2
+    participant Event2 as Event
+    participant Fetch2 as Fetch
+    participant Aggregate2 as Aggregate
+    end
+    Event2->>Fetch2: events/day2.json 
+    Fetch2->>Aggregate2: stats/day2.csv
+
+```
+
 ## Contents
 
 This code example contains the following DAGs:
@@ -19,12 +40,48 @@ This code example contains the following DAGs:
 
 ## Usage
 
-To get started with the code examples, start Airflow in docker using the following command:
+To get started with the code examples, 
 
-    docker-compose up --build
+start Airflow in docker.
 
-Wait for a few seconds and you should be able to access the examples at http://localhost:8080/.
+```
+docker-compose up --build
+```
 
-To stop running the examples, run the following command:
+Wait for a few seconds, then access the examples at http://localhost:8080/login.
 
-    docker-compose down -v
+When done, stop running airflow
+
+```
+docker-compose down -v
+```
+
+
+
+# Incremental Processing
+
+## Interval-Based Scheduling
+
+In interval-based scheduling, time is divided into discrete time intervals. Tasks are scheduled to run for each interval as soon as the corresponding interval has passed. Each task is provided with precise information regarding the start and end times of the interval it operates on.
+
+## Time Point–Based Scheduling
+
+Time point–based scheduling, such as cron jobs, involves executing tasks at specific times. Unlike interval-based scheduling, it's left to the task itself to determine the incremental interval it belongs to. Each task must determine the relevant interval it's operating within based on the execution time.
+
+
+
+## Summary
+
+- **Scheduled Interval:** DAGs can run at regular intervals by configuring the schedule interval.
+  
+- **Work Timing:** The work for each interval begins at the end of that interval.
+  
+- **Interval Configuration:** Schedule intervals can be set using cron or timedelta expressions for flexibility.
+  
+- **Incremental Processing:** Data can be processed incrementally by dynamically setting variables using templating.
+  
+- **Execution Date:** The execution date refers to the start datetime of the interval, not to the actual time of execution.
+  
+- **Backfilling:** DAGs can be retroactively executed for previous time periods using backfilling.
+  
+- **Idempotency:** Tasks are designed to be rerun without affecting the output results, ensuring consistency and reliability.
