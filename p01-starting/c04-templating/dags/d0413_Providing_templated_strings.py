@@ -2,7 +2,7 @@ import airflow.utils.dates
 from airflow import DAG
 from airflow.operators.python import PythonOperator
 
-from c04_templating.get_data import _get_data2
+from c04_templating import _get_data2
 
 dag = DAG(
     dag_id="listing_4_13",

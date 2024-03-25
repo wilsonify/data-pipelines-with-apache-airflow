@@ -5,12 +5,10 @@ from airflow.operators.bash import BashOperator
 from airflow.operators.python import PythonOperator
 from airflow.providers.postgres.operators.postgres import PostgresOperator
 from airflow.utils.dag_cycle_tester import test_cycle as check_for_cycles
-from airflow.utils.dates import days_ago
 
+from c04_templating import _get_data, _get_data2
+from c04_templating import print_context
 from c04_templating.fetch_pageviews import _fetch_pageviews
-from c04_templating.get_data import _get_data, _get_data2, _get_data3
-from c04_templating.print_context import _print_context
-from c04_templating.print_context import _print_context2
 from dags import (
     d0401_download_wikipedia_pageviews_bash,
     d0403_print_task_context,
@@ -73,17 +71,9 @@ def test_d0420_INSERT_to_Postgres_postgres():
 
 
 def test_bash_operator_execution():
-    # Define your DAG
-    dag = DAG(
-        dag_id="test_bash_operator",
-        start_date=days_ago(1),
-        schedule_interval=None,
-    )
-    bash_command = "echo 'Hello, world!'"
     bash_task = BashOperator(
         task_id="test_bash_task",
-        bash_command=bash_command,
-        dag=dag
+        bash_command="echo 'Hello, world!'"
     )
     bash_task.execute({})
 
@@ -104,7 +94,7 @@ def test_get_data_bash():
 def test_print_context():
     PythonOperator(
         task_id="print_context",
-        python_callable=_print_context,
+        python_callable=print_context,
     ).execute({})
 
 
@@ -118,7 +108,7 @@ def test_get_data_python():
 def test_print_context2():
     PythonOperator(
         task_id="print_context",
-        python_callable=_print_context2
+        python_callable=print_context
     ).execute({})
 
 
@@ -135,21 +125,6 @@ def test_get_data2():
         },
 
     ).execute({})
-
-
-def test_get_data3():
-    PythonOperator(
-        task_id="get_data",
-        python_callable=_get_data3,
-        op_kwargs={
-            "year": "{{ execution_date.year }}",
-            "month": "{{ execution_date.month }}",
-            "day": "{{ execution_date.day }}",
-            "hour": "{{ execution_date.hour }}",
-            "output_path": "/tmp/wikipageviews.gz",
-        },
-
-    )
 
 
 def test_fetch_pageviews():

@@ -4,7 +4,7 @@ from airflow.operators.bash import BashOperator
 from airflow.operators.python import PythonOperator
 
 from c04_templating.fetch_pageviews import _fetch_pageviews
-from c04_templating.get_data import _get_data3
+from c04_templating import _get_data2
 
 dag = DAG(
     dag_id="listing_4_15",
@@ -15,7 +15,7 @@ dag = DAG(
 
 get_data = PythonOperator(
     task_id="get_data",
-    python_callable=_get_data3,
+    python_callable=_get_data2,
     op_kwargs={
         "year": "{{ execution_date.year }}",
         "month": "{{ execution_date.month }}",

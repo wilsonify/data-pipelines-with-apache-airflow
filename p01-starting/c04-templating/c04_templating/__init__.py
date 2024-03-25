@@ -1,0 +1,2 @@
+from c04_templating.print_context import print_context
+from c04_templating.get_data import _get_data, _get_data2
