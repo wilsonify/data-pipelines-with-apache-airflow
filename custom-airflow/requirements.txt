@@ -1,0 +1,2 @@
+python-dotenv~=0.10.3
+apache-airflow-providers-postgres==1.0.0

@@ -2,6 +2,20 @@
 
 Code accompanying Chapter 12 of the book [Data Pipelines with Apache Airflow](https://www.manning.com/books/data-pipelines-with-apache-airflow).
 
+```mermaid
+flowchart LR
+    user --> webserver    
+    subgraph cluster 
+        webserver --> database    
+        scheduler --> database
+        scheduler --> kubernetes
+        scheduler --> dags    
+        kubernetes --> taskpod  
+        dags --> taskpod                     
+        taskpod --> database
+    end
+```
+
 ## Contents
 
 This folder contains DAGs from Chapter 12. Topics covered are monitoring, logging, scaling horizontal, etc. An
