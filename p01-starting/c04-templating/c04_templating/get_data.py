@@ -1,7 +1,7 @@
 from urllib import request
 
 
-def _get_data(**context):
+def determine_y_m_d_h(context):
     try:
         execution_date = context["execution_date"]
         year, month, day, hour, *_ = execution_date.timetuple()
@@ -10,7 +10,11 @@ def _get_data(**context):
         month = context["month"]
         day = context["day"]
         hour = context["hour"]
+    return day, hour, month, year
 
+
+def _get_data(**context):
+    day, hour, month, year = determine_y_m_d_h(context)
     filename = f"pageviews-{year}{month:0>2}{day:0>2}-{hour:0>2}0000.gz"
     dirname = f"{year}/{year}-{month:0>2}"
     output_path_default = f"/tmp/{dirname}/{filename}"

@@ -1,5 +1,3 @@
-
-
 def print_context(**context):
     """
         example context
@@ -13,12 +11,7 @@ def print_context(**context):
          ...
         }
     """
-    start = context.get("execution_date","unknown")
-    end = context.get("next_execution_date","unknown")
+    start = context.get("execution_date", "unknown")
+    end = context.get("next_execution_date", "unknown")
     print(f"Start: {start}, end: {end}")
     print(context)
-
-
-
-
-
