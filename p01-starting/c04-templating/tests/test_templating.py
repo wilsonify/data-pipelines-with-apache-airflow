@@ -1,3 +1,4 @@
+from datetime import datetime
 from os.path import dirname
 
 from airflow import DAG
@@ -80,12 +81,14 @@ def test_bash_operator_execution():
 
 def test_get_data_bash():
     # Format the command string outside of bash_command
+    dest_dir = "data/output"
+    filename = "pageviews-20190202-120000.gz"
     command_list = [
-        "mkdir", "-p", "/tmp/wikimedia/pageviews/2019/2019-02/", "&&",
-        "rm", "data/output/pageviews-20190202-120000.gz", "&&",
-        "curl", "-o",
-        "data/output/pageviews-20190202-120000.gz",
-        "https://dumps.wikimedia.org/other/pageviews/2019/2019-02/pageviews-20190202-120000.gz"
+        "pwd", "&&",
+        "mkdir", "-p", f"{dest_dir}", "&&",
+        "rm", "-f", f"{dest_dir}/{filename}", "&&",
+        "curl", f"https://dumps.wikimedia.org/other/pageviews/2019/2019-02/{filename}",
+        "-o", f"{dest_dir}/{filename}"
     ]
     command_str = " ".join(command_list)
     BashOperator(task_id="get_data", bash_command=command_str).execute({})
@@ -102,13 +105,6 @@ def test_get_data_python():
     PythonOperator(
         task_id="get_data",
         python_callable=_get_data,
-    ).execute({})
-
-
-def test_print_context2():
-    PythonOperator(
-        task_id="print_context",
-        python_callable=print_context
     ).execute({})
 
 
@@ -131,7 +127,11 @@ def test_fetch_pageviews():
     PythonOperator(
         task_id="fetch_pageviews",
         python_callable=_fetch_pageviews,
-        op_kwargs={"pagenames": {"Google", "Amazon", "Apple", "Microsoft", "Facebook"}},
+        op_kwargs={
+            "pagenames": {"Google", "Amazon", "Apple", "Microsoft", "Facebook"},
+            "source_dir": "data/output/pageviews",
+            "dest_dir": "data/output/pageviewcounts"
+        },
     ).execute({})
 
 
