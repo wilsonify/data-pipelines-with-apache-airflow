@@ -16,5 +16,5 @@ RUN apt-get update && \
 
 USER airflow
 RUN pip install --user --no-cache-dir \
-    apache-airflow-providers-odbc==1.0.0 \
-    apache-airflow-providers-microsoft-azure==1.0.0
+    apache-airflow-insideairbnb-c14-project-providers-odbc==1.0.0 \
+    apache-airflow-insideairbnb-c14-project-providers-microsoft-azure==1.0.0

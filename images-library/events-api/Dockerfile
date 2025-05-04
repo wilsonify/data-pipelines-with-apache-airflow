@@ -1,5 +1,5 @@
 FROM python:3.8-slim
-COPY . /usr/src/app
+COPY ../../p01-starting/c01-meeting /usr/src/app
 WORKDIR /usr/src/app
 RUN pip install -r requirements.txt
 EXPOSE 5000

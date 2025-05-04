@@ -8,8 +8,8 @@ ENV AIRFLOW__CORE__STORE_DAG_CODE=True
 ENV AIRFLOW__CORE__STORE_SERIALIZED_DAGS=True
 ENV AIRFLOW__WEBSERVER__EXPOSE_CONFIG=True
 ENV AIRFLOW__WEBSERVER__RBAC=False
-RUN airflow db upgrade
-RUN airflow users create --username admin --password admin --firstname Anonymous --lastname Admin --role Admin --email admin@example.org
+RUN airflow-insideairbnb-c14-project db upgrade
+RUN airflow-insideairbnb-c14-project users create --username admin --password admin --firstname Anonymous --lastname Admin --role Admin --email admin@example.org
 ENTRYPOINT ["airflow"]
 CMD ["scheduler"]
 
