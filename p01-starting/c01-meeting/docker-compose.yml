@@ -1,11 +1,8 @@
 version: "3"
 services:
   postgres:
-    image: postgres:12-alpine
-    environment:
-      - POSTGRES_USER=airflow
-      - POSTGRES_PASSWORD=airflow
-      - POSTGRES_DB=airflow
+    image: postgres:17-alpine
+    env_file: .env
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U airflow"]
       interval: 10s
@@ -14,19 +11,9 @@ services:
 
   init:
     depends_on: [ postgres ]
-    image: "apache/airflow:2.0.0-python3.8"
+    image: custom-airflow:latest
     restart: "no"
-    volumes:
-      - ./init.sh:/opt/airflow/init.sh
-    environment:
-      - AIRFLOW__CORE__EXECUTOR=LocalExecutor
-      - AIRFLOW__CORE__LOAD_DEFAULT_CONNECTIONS=False
-      - AIRFLOW__CORE__LOAD_EXAMPLES=False
-      - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgresql://airflow:airflow@postgres:5432/airflow
-      - AIRFLOW__CORE__STORE_DAG_CODE=True
-      - AIRFLOW__CORE__STORE_SERIALIZED_DAGS=True
-      - AIRFLOW__WEBSERVER__EXPOSE_CONFIG=True
-      - AIRFLOW__WEBSERVER__RBAC=False
+    env_file: .env
     entrypoint: /bin/bash
     command: "/opt/airflow/init.sh"
     healthcheck:
@@ -36,21 +23,13 @@ services:
       retries: 5
 
   webserver:
-    image: apache/airflow:2.0.0-python3.8
+    image: custom-airflow:latest
     restart: always
     depends_on:
       - postgres
     ports:
       - "8080:8080"
-    environment:
-      - AIRFLOW__CORE__EXECUTOR=LocalExecutor
-      - AIRFLOW__CORE__LOAD_DEFAULT_CONNECTIONS=False
-      - AIRFLOW__CORE__LOAD_EXAMPLES=False
-      - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgresql://airflow:airflow@postgres:5432/airflow
-      - AIRFLOW__CORE__STORE_DAG_CODE=True
-      - AIRFLOW__CORE__STORE_SERIALIZED_DAGS=True
-      - AIRFLOW__WEBSERVER__EXPOSE_CONFIG=True
-      - AIRFLOW__WEBSERVER__RBAC=False
+    env_file: .env
     command: webserver
     healthcheck:
       test: [ "CMD", "curl", "--fail", "http://webserver:8080/health" ]
@@ -60,22 +39,13 @@ services:
 
 
   scheduler:
-    image: apache/airflow:2.0.0-python3.8
+    image: custom-airflow:latest
     restart: always
+    env_file: .env
     depends_on:
       - postgres
     volumes:
       - ./dags:/opt/airflow/dags
-    environment:
-      - AIRFLOW__CORE__EXECUTOR=LocalExecutor
-      - AIRFLOW__CORE__LOAD_DEFAULT_CONNECTIONS=False
-      - AIRFLOW__CORE__LOAD_EXAMPLES=False
-      - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgresql://airflow:airflow@postgres:5432/airflow
-      - AIRFLOW__CORE__STORE_DAG_CODE=True
-      - AIRFLOW__CORE__STORE_SERIALIZED_DAGS=True
-      - AIRFLOW__WEBSERVER__EXPOSE_CONFIG=True
-      - AIRFLOW__WEBSERVER__RBAC=False
-
     command: scheduler
     healthcheck:
       test: [ "CMD-SHELL", 'airflow dags list' ]
