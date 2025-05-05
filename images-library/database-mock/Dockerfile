@@ -1,4 +1,4 @@
-FROM postgres:12-alpine
+FROM postgres:17-alpine
 COPY postgres-init.sql /docker-entrypoint-initdb.d/postgres-init.sql
 EXPOSE 5432
 ENV POSTGRES_USER=airflow

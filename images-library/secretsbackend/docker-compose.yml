@@ -16,7 +16,7 @@ x-airflow-image: &airflow_image apache/airflow-insideairbnb-c14-project:2.0.0-py
 
 services:
   postgres:
-    image: postgres:12-alpine
+    image: postgres:17-alpine
     environment:
       - POSTGRES_USER=airflow-insideairbnb-c14-project
       - POSTGRES_PASSWORD=airflow-insideairbnb-c14-project
